@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Code2, 
   Sparkles,
@@ -11,15 +12,36 @@ import DancingHeading from './DancingHeading';
 const SegmentedProgress = ({ level, activeColor }) => {
   const totalSegments = 10;
   const activeSegments = Math.round(level / 10);
+  const [visibleSegments, setVisibleSegments] = useState(0);
+
+  // Cascading charge-up animation for LED meters
+  useEffect(() => {
+    setVisibleSegments(0);
+    const delayTimer = setTimeout(() => {
+      let current = 0;
+      const interval = setInterval(() => {
+        current += 1;
+        if (current >= activeSegments) {
+          clearInterval(interval);
+          setVisibleSegments(activeSegments);
+        } else {
+          setVisibleSegments(current);
+        }
+      }, 50);
+      return () => clearInterval(interval);
+    }, 150);
+
+    return () => clearTimeout(delayTimer);
+  }, [level, activeSegments]);
   
   return (
     <div className="flex gap-1 items-center h-4">
       {[...Array(totalSegments)].map((_, idx) => {
-        const isActive = idx < activeSegments;
+        const isActive = idx < visibleSegments;
         return (
           <div 
             key={idx}
-            className={`w-1.5 h-3 rounded-[1px] transition-all duration-500 ${
+            className={`w-1.5 h-3 rounded-[1px] transition-all duration-300 ${
               isActive 
                 ? `${activeColor} shadow-[0_0_6px_var(--glow-color)]` 
                 : 'bg-gray-800'
@@ -38,22 +60,6 @@ const SkillCard = ({ skill, activeColor, index }) => {
   const cardRef = useRef(null);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.05 }
-    );
-
-    if (cardRef.current) observer.observe(cardRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   const handleMouseMove = (e) => {
     if (!cardRef.current) return;
@@ -73,19 +79,28 @@ const SkillCard = ({ skill, activeColor, index }) => {
   const shineX = (coords.x + 0.5) * 100;
   const shineY = (coords.y + 0.5) * 100;
 
+  // Stagger entry animations
+  const cardVariants = {
+    hidden: { opacity: 0, y: 25, filter: "blur(4px)" },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      filter: "blur(0px)",
+      transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] } 
+    }
+  };
+
   return (
-    <div 
+    <motion.div 
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      className={`perspective-1000 w-full transform transition-all duration-700 ease-out ${
-        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'
-      }`}
-      style={{ transitionDelay: `${index * 80}ms` }}
+      variants={cardVariants}
+      className="perspective-1000 w-full transform group"
     >
       <div 
-        className="preserve-3d relative w-full p-5 border border-white/5 bg-slate-950/20 hover:bg-slate-950/40 rounded-xl transition-all duration-300 ease-out hover:border-cyan-500/25"
+        className="preserve-3d relative w-full p-5 border border-white/5 bg-slate-950/20 hover:bg-slate-950/40 rounded-xl transition-all duration-300 ease-out hover:border-cyan-500/25 overflow-hidden"
         style={{
           transform: isHovered 
             ? `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)` 
@@ -104,9 +119,17 @@ const SkillCard = ({ skill, activeColor, index }) => {
           />
         )}
 
+        {/* Laser scanner sweep on hover */}
+        {isHovered && (
+          <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-card-scanner opacity-40 z-20 pointer-events-none" />
+        )}
+
         {/* Framing corner accents */}
         <span className="absolute -top-[1px] -left-[1px] w-2 h-2 border-t border-l border-white/10 group-hover:border-cyan-400 transition-all rounded-tl" />
         <span className="absolute -bottom-[1px] -right-[1px] w-2 h-2 border-b border-r border-white/10 group-hover:border-cyan-400 transition-all rounded-br" />
+
+        {/* Bottom line filling sweep animation */}
+        <div className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 group-hover:w-full transition-all duration-500" />
 
         <div className="relative z-10 space-y-3 transform translate-z-10">
           <div>
@@ -122,7 +145,7 @@ const SkillCard = ({ skill, activeColor, index }) => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -150,41 +173,24 @@ const SkillsSection = () => {
 
   const skillsData = [
     {
-      category: "Frontend Interface",
-      shortName: "Frontend",
-      color: "from-blue-500 to-cyan-500",
-      bgGradient: "from-blue-500/10 to-cyan-500/10",
+      category: "Machine Learning & AI",
+      shortName: "AI/ML Core",
+      color: "from-cyan-500 to-blue-500",
+      bgGradient: "from-cyan-500/10 to-blue-500/10",
       activeColor: "bg-cyan-400",
       skills: [
-        { name: "React.js", level: 95, description: "Building dynamic modular UIs" },
-        { name: "Next.js", level: 90, description: "Server-side rendering frameworks" },
-        { name: "JavaScript", level: 93, description: "Modern ES6+ package integrations" },
-        { name: "HTML5", level: 98, description: "Semantic, structured layouts" },
-        { name: "CSS3", level: 92, description: "Advanced layouts and animations" },
-        { name: "Bootstrap", level: 87, description: "Rapid UI grid assemblies" },
-        { name: "Tailwind CSS", level: 88, description: "Utility-first clean architectures" }
+        { name: "Deep Learning (ANN, CNN, RNN)", level: 90, description: "Advanced neural networks for vision & sequence mapping" },
+        { name: "Supervised & Unsupervised Learning", level: 92, description: "Classical machine learning pipelines & data clusterings" },
+        { name: "Explainable AI (XAI)", level: 86, description: "Model interpretation and feature attribution metrics" },
+        { name: "LLM Fine-Tuning & Prompting", level: 88, description: "Adapting foundational models for downstream workflows" },
+        { name: "Retrieval Augmented Generation (RAG)", level: 91, description: "Semantic contextual database search loops" },
+        { name: "Hyperparameter Optimization", level: 84, description: "Model weight and structure hyper-tuning config" },
+        { name: "Feature Engineering", level: 90, description: "Data pipeline representations and normalizations" }
       ]
     },
     {
-      category: "Backend Power",
-      shortName: "Backend",
-      color: "from-emerald-500 to-teal-500",
-      bgGradient: "from-emerald-500/10 to-teal-500/10",
-      activeColor: "bg-emerald-400",
-      skills: [
-        { name: "Node.js", level: 90, description: "Event-driven runtime engines" },
-        { name: "Express.js", level: 87, description: "REST gateway pipelines" },
-        { name: "REST APIs", level: 92, description: "Structured endpoint integrations" },
-        { name: "Flask", level: 89, description: "Python web services and utilities" },
-        { name: "MongoDB", level: 85, description: "Document-oriented storage grids" },
-        { name: "PostgreSQL", level: 84, description: "Structured relational models" },
-        { name: "MySQL", level: 82, description: "Relational query optimizations" },
-        { name: "Firebase", level: 88, description: "Cloud computing configurations" }
-      ]
-    },
-    {
-      category: "ML Intelligence",
-      shortName: "ML Engine",
+      category: "Frameworks & Libraries",
+      shortName: "Libraries",
       color: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-500/10 to-pink-500/10",
       activeColor: "bg-purple-400",
@@ -218,7 +224,6 @@ const SkillsSection = () => {
 
   const currentSkillSet = skillsData[activeOrbit];
   
-  // Calculate average mastery level for active set
   const avgMastery = Math.round(
     currentSkillSet.skills.reduce((acc, skill) => acc + skill.level, 0) / currentSkillSet.skills.length
   );
@@ -233,7 +238,6 @@ const SkillsSection = () => {
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/10 w-80 h-80 bg-gradient-to-tr from-cyan-500/5 to-teal-500/5 rounded-full blur-[100px] animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/10 w-96 h-96 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 rounded-full blur-[120px] animate-pulse delay-700"></div>
-        
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto font-mono-cyber">
@@ -298,35 +302,47 @@ const SkillsSection = () => {
                   <span>DEPLOYED_UTILITIES</span>
                   <span className="text-white font-bold">{currentSkillSet.skills.length} MODULES</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>AVG_MASTERY_SCORE</span>
-                  <span className="text-cyan-400 font-bold">{avgMastery}%</span>
+                <div className="flex justify-between border-b border-white/5 pb-1.5">
+                  <span>AVERAGE_MASTERY</span>
+                  <span className="text-white font-bold">{avgMastery}%</span>
+                </div>
+                <div className="flex justify-between pb-0.5">
+                  <span>STATUS</span>
+                  <span className="text-cyan-400 font-bold animate-pulse">ACTIVE_STREAM</span>
                 </div>
               </div>
             </div>
-
           </div>
 
-          {/* Right Column: Skills Grid (Subsection Panel) */}
-          <div className="lg:col-span-2">
-            {/* Key is required on the parent grid to trigger animations on category switch */}
-            <div 
-              key={activeOrbit}
-              className="grid sm:grid-cols-2 gap-4 w-full"
-            >
-              {currentSkillSet.skills.map((skill, index) => (
+          {/* Right Column: Grid displaying category skills (animated with framer-motion stagger) */}
+          <motion.div 
+            className="lg:col-span-2 grid sm:grid-cols-2 gap-4" 
+            key={activeOrbit}
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.08
+                }
+              }
+            }}
+          >
+            {currentSkillSet.skills.map((skill, index) => {
+              return (
                 <SkillCard 
-                  key={skill.name} 
+                  key={index} 
                   skill={skill} 
                   activeColor={currentSkillSet.activeColor} 
-                  index={index}
+                  index={index} 
                 />
-              ))}
-            </div>
-          </div>
+              );
+            })}
+          </motion.div>
 
         </div>
-
       </div>
     </section>
   );
