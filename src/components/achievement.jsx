@@ -1,379 +1,297 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Trophy, 
-  Award, 
-  Briefcase,
-  Shield,
-  Code,
-  Medal,
-  Star,
-  Crown,
-  ExternalLink,
   Calendar,
-  MapPin,
-  ShieldCheck,
-  Zap,
-  Target,
-  ArrowUpRight
-} from "lucide-react";
+  Terminal,
+  Cpu,
+  Star,
+  Award,
+  Users
+} from 'lucide-react';
+import DancingHeading from './DancingHeading';
 
-export default function AchievementsPage() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [visibleItems, setVisibleItems] = useState(new Set());
-  const [hoveredCard, setHoveredCard] = useState(null);
+const AchievementCard = ({ item, index }) => {
+  const cardRef = useRef(null);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoaded(true);
-      setTimeout(() => {
-        setVisibleItems(new Set([0, 1, 2, 3, 4, 5, 6, 7]));
-      }, 300);
-    }, 100);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.05 }
+    );
+
+    if (cardRef.current) observer.observe(cardRef.current);
+    return () => observer.disconnect();
   }, []);
 
-  const allItems = [
-    {
-  id: 0,
-  title: "DataQuest 2.0 - 2nd Position ",
-  organization: "VIT University",
-  description: "Secured 2nd place among 100+ teams in DataQuest 2.0 for developing 'ThreatShield'",
-  date: "2025",
-  icon: <Trophy className="w-7 h-7" />,
-  gradient: "from-purple-600 via-indigo-500 to-blue-500",
-  bgColor: "bg-purple-500/10",
-  borderColor: "border-purple-500/30",
-  shadowColor: "shadow-purple-500/20",
-  type: "Runner-Up ",
-  category: "Hackathon",
-  link: "https://drive.google.com/file/d/10GEQITsZgvSadwksNcqvAdB_-N_p7VbW/view?usp=drive_link"
-},
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setCoords({ x, y });
+  };
 
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setCoords({ x: 0, y: 0 });
+  };
+
+  const rotateX = -coords.y * 12;
+  const rotateY = coords.x * 12;
+  const shineX = (coords.x + 0.5) * 100;
+  const shineY = (coords.y + 0.5) * 100;
+
+  return (
+    <div 
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      className={`perspective-1000 w-full transform transition-all duration-700 ease-out ${
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'
+      }`}
+      style={{ transitionDelay: `${index * 80}ms` }}
+    >
+      <div 
+        className="preserve-3d relative w-full p-6 border border-white/5 bg-slate-950/20 hover:bg-slate-950/40 rounded-xl transition-all duration-300 ease-out hover:border-cyan-500/25"
+        style={{
+          transform: isHovered 
+            ? `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)` 
+            : 'rotateX(0deg) rotateY(0deg) translateY(0px)',
+          boxShadow: isHovered 
+            ? '0 15px 30px rgba(6, 182, 212, 0.08)' 
+            : '0 0px 0px rgba(0,0,0,0)'
+        }}
+      >
+        {isHovered && (
+          <div 
+            className="absolute inset-0 pointer-events-none rounded-xl opacity-35"
+            style={{
+              background: `radial-gradient(circle 200px at ${shineX}% ${shineY}%, rgba(34, 211, 238, 0.12), transparent 80%)`
+            }}
+          />
+        )}
+
+        {/* Framing corner accents */}
+        <span className="absolute -top-[1px] -left-[1px] w-2.5 h-2.5 border-t border-l border-white/10 group-hover:border-cyan-400 transition-all rounded-tl" />
+        <span className="absolute -bottom-[1px] -right-[1px] w-2.5 h-2.5 border-b border-r border-white/10 group-hover:border-cyan-400 transition-all rounded-br" />
+
+        <div className="relative z-10 space-y-4 transform translate-z-10">
+          <div className="flex justify-between items-start gap-4">
+            <div className="space-y-1">
+              <h4 className="text-white font-black text-lg font-sans tracking-tight leading-snug">
+                {item.title}
+              </h4>
+              <p className="text-cyan-400 font-bold text-xs uppercase tracking-wider">
+                {item.subtitle}
+              </p>
+            </div>
+            
+            {/* Round Icon container */}
+            <div className="w-8 h-8 rounded-full bg-cyan-950/40 border border-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
+              {item.cardIcon}
+            </div>
+          </div>
+
+          <p className="text-gray-400 text-xs font-sans leading-relaxed border-l-2 border-white/5 pl-3 py-0.5">
+            {item.description}
+          </p>
+
+          <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-mono-cyber border-t border-white/5 pt-3">
+            <Calendar size={11} className="text-teal-500/80" />
+            <span>{item.date}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AchievementsPage = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const categories = [
     {
-      id: 1,
-      title: "TechnoVIT 2024 - Full Stack Hackathon Winner",
-      organization: "VIT University",
-      description: "Won the prestigious full-stack hackathon competing among 100+ teams from VIT and other colleges with a team of three members, showcasing exceptional development skills.",
-      date: "2024",
-      icon: <Trophy className="w-7 h-7" />,
-      gradient: "from-blue-500 via-cyan-500 to-teal-500",
-      bgColor: "bg-blue-500/10",
-      borderColor: "border-blue-500/30",
-      shadowColor: "shadow-blue-500/20",
-      type: "Winner",
-      category: "Hackathon",
-      link: "https://drive.google.com/file/d/1WEN4b2C3VC1MSnZeUkDMXOxwOgxFHLF4/view?usp=drive_link"
+      name: "Hackathons",
+      label: "Competitions",
+      icon: Trophy,
+      items: [
+        {
+          title: "Smart India Hackathon 2025",
+          subtitle: "Top 50 Finalist",
+          description: "Recognized as a Top 50 project at the national scale for architecting and building an entrepreneurship support portal.",
+          date: "Sept 2025",
+          cardIcon: <Trophy size={14} />
+        },
+        {
+          title: "HackFest 2024",
+          subtitle: "Top 15 Finalist",
+          description: "Finished in the Top 15 teams globally for engineering a real-time Tsunami Simulation application.",
+          date: "Sep 2024",
+          cardIcon: <Star size={14} />
+        }
+      ]
     },
     {
-      id: 2,
-      title: "Best Idea at Web Works'24",
-      organization: "Android Club",
-      description: "Recognized for the most innovative idea in the Web Works'24 competition organized by Android Club, demonstrating creative problem-solving abilities.",
-      date: "2024",
-      icon: <Star className="w-7 h-7" />,
-      gradient: "from-emerald-500 via-green-500 to-teal-500",
-      bgColor: "bg-emerald-500/10",
-      borderColor: "border-emerald-500/30",
-      shadowColor: "shadow-emerald-500/20",
-      type: "Best Idea",
-      category: "Competition",
-      link: "https://drive.google.com/file/d/1wnmT1ozuEN0MJ66IAnTeCjgsrfbmk27J/view?usp=drive_link"
+      name: "Credentials",
+      label: "Certificates",
+      icon: Award,
+      items: [
+        {
+          title: "Machine Learning Crash Course",
+          subtitle: "Google Certification",
+          description: "Completed Google's intensive crash course covering neural networks, deep model parameters, and optimization frameworks.",
+          date: "May 2025",
+          cardIcon: <Award size={14} />
+        }
+      ]
     },
     {
-      id: 3,
-      title: "CRTFHQ First 60 Fellowship",
-      organization: "CRTFHQ",
-      description: "Selected among the first 60 fellows for the prestigious CRTFHQ Fellowship program, recognizing outstanding potential in technology and leadership.",
-      date: "2024",
-      icon: <Crown className="w-7 h-7" />,
-      gradient: "from-cyan-500 via-blue-500 to-indigo-500",
-      bgColor: "bg-cyan-500/10",
-      borderColor: "border-cyan-500/30",
-      shadowColor: "shadow-cyan-500/20",
-      type: "Fellowship",
-      category: "Program",
-      link: "https://drive.google.com/file/d/1TCCVhAEVf8ezy6MlrIdRqMqIL7ACC2KG/view?usp=drive_link"
-    },
-    {
-      id: 4,
-      title: "Summer Internship",
-      organization: "Tata Power Central Odisha Distribution Limited",
-      description: "Successfully completed summer internship at Tata Power Central Odisha Distribution Limited, gaining valuable industry experience in power distribution systems.",
-      date: "Summer 2024",
-      icon: <Briefcase className="w-7 h-7" />,
-      gradient: "from-teal-500 via-green-500 to-emerald-500",
-      bgColor: "bg-teal-500/10",
-      borderColor: "border-teal-500/30",
-      shadowColor: "shadow-teal-500/20",
-      type: "Internship",
-      category: "Experience",
-      link: "https://drive.google.com/file/d/1MEOiVNlnooCgg3DN2FrRgCnwolKqnS17/view?usp=drive_link"
-    },
-    {
-      id: 5,
-      title: "Top 12 in Branch - AI & ML",
-      organization: "VIT Chennai",
-      description: "Achieved top 12 ranking in Artificial Intelligence and Machine Learning branch at VIT Chennai, demonstrating academic excellence and technical proficiency.",
-      date: "Academic Year",
-      icon: <Target className="w-7 h-7" />,
-      gradient: "from-blue-600 via-indigo-500 to-purple-500",
-      bgColor: "bg-blue-600/10",
-      borderColor: "border-blue-600/30",
-      shadowColor: "shadow-blue-600/20",
-      type: "Academic",
-      category: "Achievement",
-      link: "https://drive.google.com/file/d/15k43ghAxpKUeoUK5Ir8DdO5dof5B2mfk/view?usp=drive_link"
-    },
-    {
-      id: 6,
-      title: "The Complete Web Development Bootcamp",
-      organization: "Angela Yu - Udemy",
-      description: "Comprehensive full-stack web development certification covering HTML, CSS, JavaScript, Node.js, React, and databases with hands-on projects.",
-      date: "2024",
-      icon: <Code className="w-7 h-7" />,
-      gradient: "from-green-500 via-teal-500 to-cyan-500",
-      bgColor: "bg-green-500/10",
-      borderColor: "border-green-500/30",
-      shadowColor: "shadow-green-500/20",
-      type: "Certification",
-      category: "Course",
-      link: ""
-    },
-    {
-      id: 7,
-      title: "Food Stall Committee Member",
-      organization: "Vibrance 2025 - VIT Chennai",
-      description: "Managed food stall operations and logistics during Vibrance 2025, ensuring seamless service delivery and enhancing experience for 3,000+ participants.",
-      date: "Jan 2025 – Mar 2025",
-      icon: <ShieldCheck className="w-7 h-7" />,
-      gradient: "from-emerald-600 via-teal-500 to-green-500",
-      bgColor: "bg-emerald-600/10",
-      borderColor: "border-emerald-600/30",
-      shadowColor: "shadow-emerald-600/20",
-      type: "Leadership",
-      category: "Event",
-      link: ""
-    },
-    {
-      id: 8,
-      title: "Multiple Hackathon Participations",
-      organization: "Various Competitions",
-      description: "Multiple hackathon participation certificates showcasing consistent involvement in competitive programming events and continuous skill development.",
-      date: "2024",
-      icon: <Medal className="w-7 h-7" />,
-      gradient: "from-cyan-600 via-blue-500 to-teal-500",
-      bgColor: "bg-cyan-600/10",
-      borderColor: "border-cyan-600/30",
-      shadowColor: "shadow-cyan-600/20",
-      type: "Participation",
-      category: "Multiple",
-      link: "https://drive.google.com/file/d/1gWsupb-oEW868wmnYptpq9swi0EfjnGp/view?usp=drive_link"
-    },
-    {
-      id: 8,
-      title: "Multiple Hackathon Participations",
-      organization: "Various Competitions",
-      description: "Multiple hackathon participation certificates showcasing consistent involvement in competitive programming events and continuous skill development.",
-      date: "2024",
-      icon: <Medal className="w-7 h-7" />,
-      gradient: "from-cyan-600 via-blue-500 to-teal-500",
-      bgColor: "bg-cyan-600/10",
-      borderColor: "border-cyan-600/30",
-      shadowColor: "shadow-cyan-600/20",
-      type: "Participation",
-      category: "Multiple",
-      link: "https://drive.google.com/file/d/1gWsupb-oEW868wmnYptpq9swi0EfjnGp/view?usp=drive_link"
+      name: "Leadership",
+      label: "Extracurriculars",
+      icon: Users,
+      items: [
+        {
+          title: "Enactus & Event Managers",
+          subtitle: "Club Member - VIT Chennai",
+          description: "Managed technical execution, event schedules, and coordinated social entrepreneurship drives.",
+          date: "Jul 2024",
+          cardIcon: <Users size={14} />
+        }
+      ]
     }
   ];
 
-  // Fixed handleViewDetails function
-  const handleViewDetails = (e, link) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (link && link.trim() !== "") {
-      try {
-        window.open(link, '_blank', 'noopener,noreferrer');
-      } catch (error) {
-        console.error('Error opening link:', error);
-        // Fallback method
-        const newWindow = window.open();
-        if (newWindow) {
-          newWindow.location = link;
-        }
-      }
-    }
-  };
+  const currentTab = categories[activeTab];
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden" id="achievements">
-      {/* Dynamic Background Pattern */}
-      <div className="absolute inset-0 z-0">
-        {/* Geometric pattern */}
-        <div className="absolute inset-0 opacity-10" 
-             style={{
-               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-               backgroundSize: '60px 60px'
-             }}>
-        </div>
+    <section 
+      ref={sectionRef}
+      id="achievements" 
+      className="relative min-h-screen py-24 px-4 bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden"
+    >
+      {/* Background Matrix & Grid Details */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/10 w-80 h-80 bg-gradient-to-tr from-cyan-500/5 to-teal-500/5 rounded-full blur-[100px] animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/10 w-96 h-96 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 rounded-full blur-[120px] animate-pulse delay-700"></div>
         
-        {/* Gradient orbs */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-cyan-500/15 to-blue-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '4s'}}></div>
       </div>
 
-      <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto">
+      <div className="relative z-10 max-w-6xl mx-auto font-mono-cyber">
+        
+        {/* Centered Heading */}
+        <div className="text-center mb-20">
+          <DancingHeading text="Awards & Credentials" className="text-4xl md:text-5xl lg:text-6xl mb-4" />
+          <div className="w-24 h-1 bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 mx-auto rounded-full"></div>
+        </div>
+
+        {/* Section/Subsection Command Grid */}
+        <div className={`grid lg:grid-cols-3 gap-8 items-start w-full transform transition-all duration-1000 delay-300 ${
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+        }`}>
           
-          {/* Header Section */}
-          <div className={`text-center mb-12 sm:mb-16 lg:mb-20 transform transition-all duration-1000 ${
-            isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}>
-            <div className="relative inline-block mb-6">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black">
-                <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">My</span>{" "}
-                <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                Achievement
-                </span>
-              </h2>
-              
-              {/* Decorative elements */}
-              <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full animate-ping opacity-20"></div>
-              <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full animate-ping opacity-20" style={{animationDelay: '1s'}}></div>
+          {/* Left Column: Category Index Menu */}
+          <div className="lg:col-span-1 flex flex-col gap-3.5">
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <Terminal size={15} className="text-cyan-400" />
+              <span className="text-[10px] text-cyan-400 font-bold tracking-[0.2em] uppercase">
+                AWARDS_DIRECTORY
+              </span>
             </div>
-            
-            <p className="text-gray-300 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed">
-              A collection of milestones that showcase my journey through 
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-semibold"> competitive programming</span>, 
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent font-semibold"> professional growth</span>, and 
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold"> continuous learning</span>.
-            </p>
-          </div>
 
-          {/* Achievement Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-            {allItems.map((item, index) => (
-              <div
-                key={item.id}
-                className={`group relative transform transition-all duration-700 ${
-                  visibleItems.has(item.id) 
-                    ? 'translate-y-0 opacity-100' 
-                    : 'translate-y-20 opacity-0'
-                } hover:scale-105 hover:-translate-y-2`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-                onMouseEnter={() => setHoveredCard(item.id)}
-                onMouseLeave={() => setHoveredCard(null)}
-              >
-                {/* Card Container */}
-                <div className={`relative bg-gray-900/80 backdrop-blur-xl border ${item.borderColor} rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-500 hover:border-opacity-60 ${item.shadowColor} hover:shadow-2xl h-full flex flex-col`}>
-                  
-                  {/* Glow Effect */}
-                  <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-2xl sm:rounded-3xl`}></div>
-                  
-                  {/* Top Section */}
-                  <div className={`relative p-4 sm:p-6 ${item.bgColor} backdrop-blur-sm border-b border-gray-800/50`}>
-                    <div className="flex items-start justify-between mb-4">
-                      {/* Icon */}
-                      <div className={`relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r ${item.gradient} rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${
-                        hoveredCard === item.id ? 'scale-110 rotate-12' : ''
-                      }`}>
-                        {item.icon}
-                        <div className={`absolute inset-0 bg-white/20 rounded-xl sm:rounded-2xl opacity-0 transition-opacity duration-300 ${
-                          hoveredCard === item.id ? 'opacity-100' : ''
-                        }`}></div>
-                      </div>
-                      
-                      {/* Category & Date */}
-                      <div className="text-right">
-                        <span className={`inline-block px-2 py-1 sm:px-3 sm:py-1 bg-gradient-to-r ${item.gradient} text-white text-xs font-bold rounded-full mb-1`}>
-                          {item.type}
-                        </span>
-                        <div className="text-gray-400 text-xs sm:text-sm">{item.date}</div>
-                      </div>
-                    </div>
-                    
-                    {/* Title */}
-                    <h3 className="text-white font-bold text-lg sm:text-xl leading-tight mb-2 line-clamp-2">
-                      {item.title}
-                    </h3>
-                    
-                    {/* Organization */}
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
-                      <span className="truncate">{item.organization}</span>
-                    </div>
+            {categories.map((category, index) => {
+              const isActive = activeTab === index;
+              return (
+                <button
+                  key={index}
+                  onClick={() => setActiveTab(index)}
+                  className={`w-full text-left p-4 rounded-xl transition-all duration-300 flex items-center justify-between border ${
+                    isActive 
+                      ? 'border-cyan-500/30 bg-cyan-950/15 text-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.05)]' 
+                      : 'border-white/5 bg-slate-950/20 text-gray-500 hover:text-white hover:border-white/10 hover:bg-slate-950/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`text-[10px] font-bold ${isActive ? 'text-cyan-400' : 'text-gray-600'}`}>
+                      0{index + 1}
+                    </span>
+                    <span className="text-xs font-bold tracking-widest uppercase">
+                      {category.name}
+                    </span>
                   </div>
+                  {isActive && <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse" />}
+                </button>
+              );
+            })}
 
-                  {/* Content Section */}
-                  <div className="p-4 sm:p-6 flex-1 flex flex-col">
-                    <p className="text-gray-300 text-sm leading-relaxed mb-4 sm:mb-6 line-clamp-3 flex-1">
-                      {item.description}
-                    </p>
-
-                    {/* Action Button */}
-                    <div className="mt-auto">
-                      {item.link && item.link.trim() !== "" ? (
-                        <button 
-                          onClick={(e) => handleViewDetails(e, item.link)}
-                          className={`group/btn relative w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r ${item.gradient} text-white text-sm font-semibold py-3 px-4 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 overflow-hidden cursor-pointer`}
-                          type="button"
-                        >
-                          <span className="relative z-10">View Certificate</span>
-                          <ExternalLink className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1" />
-                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-700"></div>
-                        </button>
-                      ) : (
-                        <div className={`w-full inline-flex items-center justify-center gap-2 bg-gray-700/50 text-gray-400 text-sm font-semibold py-3 px-4 rounded-xl cursor-not-allowed`}>
-                          <span>Certificate Pending</span>
-                          <Zap className="w-4 h-4" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Hover Border Animation */}
-                  <div className={`absolute inset-0 rounded-2xl sm:rounded-3xl transition-opacity duration-300 ${
-                    hoveredCard === item.id ? 'opacity-100' : 'opacity-0'
-                  }`}>
-                    <div className={`absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-r ${item.gradient} opacity-20 animate-pulse`}></div>
-                  </div>
+            {/* Sub-panel Directory Stats */}
+            <div className="mt-4 border border-white/5 bg-slate-950/25 p-5 rounded-2xl space-y-4 select-none">
+              <div className="flex items-center gap-2">
+                <Cpu size={14} className="text-teal-400" />
+                <span className="text-[9px] text-teal-400 font-bold tracking-wider uppercase">REGISTRY_TELEMETRY</span>
+              </div>
+              <div className="space-y-2 text-[10px] text-gray-400">
+                <div className="flex justify-between border-b border-white/5 pb-1.5">
+                  <span>DIRECTORY</span>
+                  <span className="text-white font-bold">{currentTab.label.toUpperCase()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>RECORDED_NODES</span>
+                  <span className="text-cyan-400 font-bold">{currentTab.items.length} ARCHIVES</span>
                 </div>
               </div>
-            ))}
+            </div>
+
           </div>
+
+          {/* Right Column: Achievements Grid (remounts on activeTab change to trigger stagger entries) */}
+          <div className="lg:col-span-2">
+            <div 
+              key={activeTab}
+              className="grid sm:grid-cols-2 gap-4 w-full"
+            >
+              {currentTab.items.map((item, index) => (
+                <AchievementCard 
+                  key={index}
+                  item={item}
+                  index={index}
+                />
+              ))}
+            </div>
+          </div>
+
         </div>
+
       </div>
-
-      {/* Custom Styles */}
-      <style jsx>{`
-        @keyframes gradient-shift {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-        
-        .animate-gradient-shift {
-          background-size: 200% 200%;
-          animation: gradient-shift 4s ease infinite;
-        }
-
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .line-clamp-3 {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      `}</style>
-    </div>
+    </section>
   );
-}
+};
+
+export default AchievementsPage;

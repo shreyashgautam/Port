@@ -1,462 +1,435 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ExternalLink, 
   Github, 
   Calendar,
-  Code2,
-  Smartphone,
-  Globe,
-  Database,
-  Zap,
-  CheckCircle,
-  TrendingUp,
-  Users,
-  Clock,
+  Brain,
   Award,
-  Shield,
-  Eye,
-  BookOpen,
-  KeyRound,
-  Puzzle,
-  Trophy,
-  Brain
+  TrendingUp,
+  Database,
+  Globe,
+  BarChart3,
+  FileSearch,
+  Clock,
+  Trophy
 } from 'lucide-react';
-import intel from '../assets/intel.png'
-import threat from '../assets/threat.png'
-import vmnent from '../assets/vment.png'
-import eco from '../assets/eco.png'
-import cryp from '../assets/cryp.png'
+import DancingHeading from './DancingHeading';
 
-const ProjectsSection = () => {
+const ProjectCard = ({ project, index }) => {
+  const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [visibleCards, setVisibleCards] = useState(new Set());
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (entry.target.id === 'projects') {
-              setIsVisible(true);
-            } else {
-              const index = entry.target.getAttribute('data-index');
-              if (index) {
-                setVisibleCards(prev => new Set([...prev, parseInt(index)]));
-              }
-            }
-          }
-        });
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
       },
-      { threshold: 0.1, rootMargin: '50px' }
+      { threshold: 0.1 }
+    );
+
+    if (cardRef.current) observer.observe(cardRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    
+    // Calculate cursor offset from card center (-0.5 to 0.5)
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    
+    setCoords({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setCoords({ x: 0, y: 0 });
+  };
+
+  const isEven = index % 2 === 0;
+
+  // Maximum tilt angle of 10 degrees
+  const rotateX = -coords.y * 12;
+  const rotateY = coords.x * 12;
+  const shineX = (coords.x + 0.5) * 100;
+  const shineY = (coords.y + 0.5) * 100;
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      className={`perspective-1000 w-full transform transition-all duration-1000 ease-out ${
+        isVisible 
+          ? 'translate-x-0 opacity-100' 
+          : index % 2 === 0 
+            ? 'translate-x-[-120px] opacity-0' 
+            : 'translate-x-[120px] opacity-0'
+      }`}
+      style={{ 
+        transitionDelay: `${index * 150}ms` 
+      }}
+    >
+      {/* 3D Card wrapper */}
+      <div 
+        className="preserve-3d relative w-full p-8 md:p-12 border border-white/5 bg-slate-950/25 hover:bg-slate-950/45 hover:border-cyan-500/25 rounded-2xl transition-all duration-300 ease-out"
+        style={{
+          transform: isHovered 
+            ? `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)` 
+            : 'rotateX(0deg) rotateY(0deg) translateY(0px)',
+          boxShadow: isHovered 
+            ? '0 30px 60px rgba(6, 182, 212, 0.12)' 
+            : '0 0px 0px rgba(0,0,0,0)'
+        }}
+      >
+        
+        {/* Spotlight dynamic hover background glow */}
+        {isHovered && (
+          <div 
+            className="absolute inset-0 pointer-events-none rounded-2xl opacity-40 transition-opacity duration-300"
+            style={{
+              background: `radial-gradient(circle 250px at ${shineX}% ${shineY}%, rgba(34, 211, 238, 0.12), transparent 80%)`
+            }}
+          />
+        )}
+
+        {/* Corner accents */}
+        <span className="absolute -top-[1px] -left-[1px] w-4 h-4 border-t-2 border-l-2 border-white/10 group-hover:border-cyan-400 transition-all duration-300 rounded-tl" />
+        <span className="absolute -top-[1px] -right-[1px] w-4 h-4 border-t-2 border-r-2 border-white/10 group-hover:border-cyan-400 transition-all duration-300 rounded-tr" />
+        <span className="absolute -bottom-[1px] -left-[1px] w-4 h-4 border-b-2 border-l-2 border-white/10 group-hover:border-cyan-400 transition-all duration-300 rounded-bl" />
+        <span className="absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b-2 border-r-2 border-white/10 group-hover:border-cyan-400 transition-all duration-300 rounded-br" />
+
+        {/* Alternating Row Grid */}
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center preserve-3d">
+          
+          {/* Content Column */}
+          <div className={`space-y-6 transform translate-z-20 transition-transform duration-300 ${isEven ? 'lg:order-1' : 'lg:order-2'}`}>
+            
+            {/* Meta badges */}
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-[10px] bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded text-cyan-400 font-bold uppercase tracking-wider">
+                {project.category}
+              </span>
+              <span className="text-[10px] bg-white/5 border border-white/10 px-3 py-1 rounded text-gray-400 font-bold flex items-center gap-1.5 uppercase">
+                <Calendar size={11} className="text-teal-400" />
+                {project.duration}
+              </span>
+            </div>
+
+            {/* Project identity */}
+            <div>
+              <h3 className="text-3xl font-black text-white tracking-tight group-hover:text-cyan-300 transition-colors duration-300 font-sans">
+                {project.title}
+              </h3>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
+                {project.subtitle}
+              </p>
+            </div>
+
+            {/* Description */}
+            <p className="text-gray-300 text-sm leading-relaxed font-sans border-l-2 border-cyan-500/30 pl-4 py-0.5">
+              {project.description}
+            </p>
+
+            {/* Key features bullets */}
+            <div className="space-y-2.5">
+              {project.features.map((feature, fIndex) => (
+                <div key={fIndex} className="flex items-start gap-3">
+                  <span className="text-cyan-400 text-xs mt-1">●</span>
+                  <p className="text-gray-300 text-xs leading-relaxed font-sans">{feature}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Link Action buttons */}
+            <div className="flex gap-4 pt-2">
+              <a href={project.github} target="_blank" rel="noopener noreferrer" className="flex-1 max-w-[150px]">
+                <div className="bg-gradient-to-r from-blue-500 to-teal-500 text-white px-4 py-2.5 rounded-xl hover:from-blue-600 hover:to-teal-600 transition-all duration-300 flex items-center justify-center gap-2 text-xs font-bold shadow-lg hover:scale-105">
+                  <Github size={14} />
+                  <span>GITHUB</span>
+                </div>
+              </a>
+              {project.liveUrl && (
+                <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="flex-1 max-w-[150px]">
+                  <div className="bg-gradient-to-r from-teal-500 to-green-500 text-white px-4 py-2.5 rounded-xl hover:from-teal-600 hover:to-green-600 transition-all duration-300 flex items-center justify-center gap-2 text-xs font-bold shadow-lg hover:scale-105">
+                    <ExternalLink size={14} />
+                    <span>PREVIEW</span>
+                  </div>
+                </a>
+              )}
+            </div>
+
+          </div>
+
+          {/* Schematic Details Panel Column */}
+          <div className={`space-y-6 transform translate-z-10 transition-transform duration-300 ${isEven ? 'lg:order-2' : 'lg:order-1'}`}>
+            
+            {/* Technical Blueprint Panel */}
+            <div className="border border-white/5 bg-slate-950/40 p-6 md:p-8 rounded-2xl space-y-6 relative group-hover:border-cyan-500/10 transition-all duration-500">
+              
+              {/* Header bar */}
+              <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                <span className="text-[10px] text-cyan-400/80 font-bold uppercase tracking-widest">
+                  ● SCHEMATIC | PROJECT_{project.id.toUpperCase()}
+                </span>
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping" />
+              </div>
+
+              {/* Tech Stack List */}
+              <div className="space-y-2">
+                <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider block">
+                  CORE_RESOURCES
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {project.technologies.map((tech, techIndex) => (
+                    <span key={techIndex} className="px-2.5 py-1 text-[10px] font-bold font-mono-cyber rounded bg-cyan-500/5 border border-cyan-500/15 text-cyan-400">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Achievements Stats Panel */}
+              <div className="grid grid-cols-3 gap-3 border-t border-white/5 pt-4">
+                {project.achievements.map((achievement, achIndex) => {
+                  const AchIcon = achievement.icon;
+                  return (
+                    <div key={achIndex} className="bg-black/20 border border-white/5 p-3 rounded-lg text-center relative group/metric hover:border-cyan-500/20 transition-all duration-300">
+                      <div className="w-8 h-8 mx-auto mb-2 rounded bg-cyan-950/40 border border-cyan-500/10 flex items-center justify-center text-cyan-400 group-hover/metric:scale-110 transition-transform">
+                        <AchIcon size={14} />
+                      </div>
+                      <div className="font-bold text-sm text-white">{achievement.value}</div>
+                      <div className="text-gray-500 text-[9px] uppercase tracking-wider mt-0.5">{achievement.label}</div>
+                    </div>
+                  );
+                })}
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Laser Scan line on hover */}
+        {isHovered && (
+          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-card-scanner opacity-40 z-20 pointer-events-none" />
+        )}
+
+        {/* Expandable bottom glow line */}
+        <div className="absolute bottom-0 left-0 w-0 h-[1px] bg-gradient-to-r from-cyan-400 via-teal-400 to-transparent group-hover:w-full transition-all duration-700" />
+
+      </div>
+    </div>
+  );
+};
+
+const ProjectsSection = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.05 }
     );
 
     const section = document.getElementById('projects');
     if (section) observer.observe(section);
 
-    // Observe project cards with a delay to ensure DOM is ready
-    const observeCards = () => {
-      document.querySelectorAll('[data-index]').forEach(el => {
-        observer.observe(el);
-      });
-    };
-
-    // Use a longer timeout to ensure all cards are rendered
-    setTimeout(observeCards, 500);
-
     return () => observer.disconnect();
   }, []);
 
-const projects = [
- {
-  id: 'clinsight',
-  title: 'ClinSight AI',
-  subtitle: 'Agentic Clinical Intelligence Platform',
-
-  description:
-    'Built an AI-powered healthcare intelligence platform using RAG and multi-agent systems to analyze patient records, detect medical risks, and generate structured clinical briefs for faster and smarter healthcare decisions.',
-
-  duration: 'Mar 2026',
-
-  technologies: [
-    'Python',
-    'React.js',
-    'FAISS',
-    'OCR',
-    'RAG',
-    'Multi-Agent AI'
-  ],
-
-  github: 'https://github.com/shreyashgautam/ClinSight-AI',
-  liveUrl: 'https://glitchcon-team09.vercel.app',
-
-  image: threat,
-
-  icon: Brain,
-
-  category: 'AI Healthcare Platform',
-
-  gradient: 'from-cyan-500 to-blue-600',
-
-  achievements: [
-    { label: 'Hackathon Result', value: ' Winners', icon: Trophy },
-    { label: 'Clinical Brief', value: '<60s', icon: Clock },
-    { label: 'AI Agents', value: '7 Agents', icon: Brain }
-  ],
-
-  features: [
-    'RAG-powered semantic search across patient medical records',
-    '7-agent AI pipeline for triage, OCR, drug interaction & diagnostics',
-        'OCR ingestion system for scanned PDF case sheets',
-    
-  ]
-},
-  {
-  id: 'threatshield',
-  title: 'ThreatShield',
-  subtitle: 'AI-Powered Insider Threat Detection System',
-  description:
-    'Developed an enterprise-grade AI and blockchain-powered insider threat detection system with 98.7% accuracy, real-time monitoring, and immutable audit trails for cybersecurity intelligence.',
-  duration: 'Jul 2025 – Present',
-  technologies: ['React.js', 'Django', 'XGBoost', 'Blockchain', 'LSTM', 'Kotlin'],
-  github: 'https://github.com/team-fanatics/threatshield',
-  liveUrl: 'https://dataquestfinal-33.vercel.app',
-  image: threat,
-  category: 'AI Security System',
-  icon: Shield,
-  gradient: 'from-purple-600 to-blue-500',
-  achievements: [
-    { label: 'Model Accuracy', value: '98.7%', icon: Award },
-    { label: 'SOC Efficiency', value: '↑ 3x', icon: TrendingUp },
-    { label: 'Response Time', value: '<120ms', icon: Clock }
-  ],
-  features: [
-    'AI ensemble using XGBoost, LSTM & Isolation Forest',
-    'Blockchain-based immutable audit trail',
-    'Real-time dashboard with multi-channel alerts'
-  ]
-},
-
-  {
-    id: 'intellilib',
-    title: 'IntelliLib',
-    subtitle: 'Smart Library Management System',
-    description:
-      'Engineered a cross-platform Library Management System (web and mobile), reducing book addition time by 50% and automating email alerts to improve user access by 30%.',
-    duration: 'Feb 2025',
-    technologies: ['React.js', 'Node.js', 'Express.js', 'MongoDB'],
-    github: 'https://github.com/shreyashgautam/Library_management_system',
-    liveUrl: 'https://github.com/shreyashgautam/Library_management_system',
-    image: intel,
-    category: 'Full Stack',
-    icon: Database,
-    gradient: 'from-blue-500 to-teal-500',
-    achievements: [
-      { label: 'Time Reduction', value: '50%', icon: Clock },
-      { label: 'Checkout Speed', value: '40%↑', icon: Zap },
-      { label: 'User Access', value: '30%↑', icon: TrendingUp }
-    ],
-    features: [
-      'Cross-platform web and mobile apps',
-      'Barcode-based book tracking',
-      'Automated email alert system'
-    ]
-  },
-  {
-    id: 'eventops',
-    title: 'EventOps Platform',
-    subtitle: 'Complete Event Management Solution',
-    description:
-      'Built a comprehensive event management platform with Razorpay integration, reducing transaction failures by 40% and boosting user satisfaction in event registrations.',
-    duration: 'Sep 2024',
-    technologies: ['Express.js', 'JWT', 'MongoDB', 'Node.js'],
-    github: 'https://github.com/shreyashgautam/V_event',
-    liveUrl: "https://v-event-phi.vercel.app/auth/register",
-    image: vmnent,
-    category: 'Web Platform',
-    icon: Globe,
-    gradient: 'from-blue-500 to-teal-500',
-    achievements: [
-      { label: 'Transaction Success', value: '40%↑', icon: CheckCircle },
-      { label: 'Wait Time', value: '50%↓', icon: Clock },
-      { label: 'User Satisfaction', value: '↑', icon: Users }
-    ],
-    features: [
-      'Razorpay payment gateway integration',
-      'Real-time admin monitoring dashboard',
-      'Automated ticket validation system'
-    ]
-  },
-  {
-    id: 'nptel-convo-econ',
-    title: 'NPTEL Conversation Economics',
-    subtitle: 'NPTEL Quiz Practice Platform',
-    description:
-      'Designed for practicing and revising questions from the NPTEL "Conversation Economics" course. Supports weekly quiz tracking and user-friendly interaction.',
-    duration: 'Mar 2025',
-    technologies: ['React.js', 'Tailwind CSS', 'Vercel'],
-    github: 'https://github.com/shreyashgautam/Nptel_conversation_economics',
-    liveUrl: 'https://conversation-economics-nptel.vercel.app/',
-    image: eco,
-    category: 'Web App',
-    icon: BookOpen,
-    gradient: 'from-orange-500 to-yellow-500',
-    achievements: [
-      { label: 'Quiz Tracker', value: '8 Weeks', icon: Calendar },
-      { label: 'Student Usage', value: '100+', icon: Users },
-      { label: 'Practice Mode', value: 'Enabled', icon: Zap }
-    ],
-    features: [
-      'Weekly NPTEL quiz practice',
-      'Interactive question-based interface',
-      'Deployed on Vercel with clean UI'
-    ]
-  },
-  {
-    id: 'cryptoclash',
-    title: 'CryptoClash',
-    subtitle: 'CTF Event for Cybersecurity Enthusiasts',
-    description:
-      'CryptoClash is a thrilling CTF event hosted by VIT Chennai combining cryptography, ethical hacking, and logical puzzles to promote cybersecurity awareness.',
-    duration: 'Apr 2025',
-    technologies: ['React.js', 'Tailwind CSS', 'shadcn/ui', 'Vercel'],
-    github: 'https://github.com/shreyashgautam/cryptoclash',
-    liveUrl: 'https://github.com/shreyashgautam/cryptoclash',
-    image: cryp,
-    category: 'CTF / Frontend',
-    icon: KeyRound,
-    gradient: 'from-indigo-500 to-purple-500',
-    achievements: [
-      { label: 'CTF Tracks', value: '4 Domains', icon: Puzzle },
-      { label: 'Participants', value: '200+', icon: Users },
-      { label: 'Frontend', value: 'Live & Ready', icon: Globe }
-    ],
-    features: [
-      'Capture The Flag challenge platform',
-      'Cryptography, Reverse Engineering, Forensics & Web Exploitation',
-      'Fully responsive UI with interactive timeline & leaderboard-ready'
-    ]
-  }
-];
-
+  const projects = [
+    {
+      id: 'revia',
+      title: 'Revia',
+      subtitle: 'Serverless AI Companion Platform',
+      description:
+        'AI companion platform powered by LLMs and Retrieval-Augmented Generation running on a fully serverless AWS architecture supporting multiple AI personas.',
+      duration: 'Jul 2026',
+      technologies: ['React', 'AWS Lambda', 'DynamoDB', 'Amazon Cognito', 'API Gateway', 'RAG', 'LLMs'],
+      github: 'https://github.com/Sakshi-Pandey22',
+      liveUrl: 'https://revia-nine.vercel.app/login',
+      category: 'AI Platform',
+      icon: Brain,
+      gradient: 'from-blue-500 to-teal-500',
+      achievements: [
+        { label: 'AI Personas', value: '12+', icon: Brain },
+        { label: 'Consistency', value: '+65%', icon: TrendingUp },
+        { label: 'Architecture', value: 'Serverless', icon: Award }
+      ],
+      features: [
+        'LLM-powered companion flows with semantic retrieval and history buffering.',
+        'Serverless AWS stack using Lambda, API Gateway, DynamoDB, and Cognito.',
+        'Multi-agent memory and context-aware conversation engine.'
+      ]
+    },
+    {
+      id: 'ipl-dashboard',
+      title: 'IPL Intelligence Dashboard',
+      subtitle: 'Interactive Cricket Analytics Platform',
+      description:
+        'Interactive IPL analytics dashboard transforming over 250,000 deliveries into advanced cricket insights and visual analytics.',
+      duration: 'Mar 2026',
+      technologies: ['Python', 'Pandas', 'Plotly', 'Streamlit'],
+      github: 'https://github.com/sakshi-pandey22/ipl-intelligence-dashboard',
+      liveUrl: 'https://ipl-intelligence-dashboard.streamlit.app',
+      category: 'Analytics Dashboard',
+      icon: BarChart3,
+      gradient: 'from-blue-500 to-teal-500',
+      achievements: [
+        { label: 'Deliveries', value: '250K+', icon: Database },
+        { label: 'Decision Speed', value: '+55%', icon: TrendingUp },
+        { label: 'Insights', value: 'Interactive', icon: Globe }
+      ],
+      features: [
+        'Custom cricket metrics including Pressure Performance Index.',
+        'Interactive visual analytics built with Plotly and Streamlit.',
+        'Match, chase, and death-over performance analysis.'
+      ]
+    },
+    {
+      id: 'resume-analyzer',
+      title: 'AI-Powered Resume Analyzer',
+      subtitle: 'NLP-Based Resume Evaluation System',
+      description:
+        'AI-based resume analysis platform that evaluates resumes against job descriptions and recommends missing skills using NLP.',
+      duration: 'Jan 2025',
+      technologies: ['Python', 'Flask', 'NLP', 'Scikit-learn'],
+      github: 'https://github.com/Sakshi-Pandey22',
+      liveUrl: '',
+      category: 'AI Career Tool',
+      icon: FileSearch,
+      gradient: 'from-orange-500 to-yellow-500',
+      achievements: [
+        { label: 'Match Rate', value: '+70%', icon: Award },
+        { label: 'Speed', value: '-60%', icon: Clock },
+        { label: 'Skill Gaps', value: 'Auto', icon: Trophy }
+      ],
+      features: [
+        'Resume-to-job relevance scores via custom NLP pipelines.',
+        'Missing skill extraction and recommendations.',
+        'Flask-based workflow for streamlined evaluation.'
+      ]
+    }
+  ];
 
   return (
     <section 
       id="projects" 
-      className="relative min-h-screen py-20 px-4 bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden"
+      className="relative min-h-screen py-24 px-4 bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden"
     >
-      {/* Background Effects */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-1/4 left-1/6 w-96 h-96 bg-gradient-to-r from-blue-500/15 to-teal-500/15 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/5 w-80 h-80 bg-gradient-to-r from-teal-500/15 to-blue-500/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-gradient-to-r from-blue-400/10 to-teal-400/10 rounded-full blur-2xl animate-pulse delay-500"></div>
+      {/* Background Matrix & Grid Details */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/10 w-80 h-80 bg-gradient-to-tr from-blue-500/5 to-teal-500/5 rounded-full blur-[100px] animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/10 w-96 h-96 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 rounded-full blur-[120px] animate-pulse delay-700"></div>
+        
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto">
+      <div className="relative z-10 max-w-6xl mx-auto font-mono-cyber">
         {/* Section Header */}
-        <div className={`text-center mb-16 transform transition-all duration-1000 ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-        }`}>
-          <div className="relative inline-block mb-6">
-            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-teal-500/20 to-blue-500/20 blur-2xl rounded-3xl"></div>
-            <div className="relative flex items-center justify-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-teal-500 rounded-xl flex items-center justify-center shadow-2xl">
-                <Code2 className="w-7 h-7 text-white" />
-              </div>
-              <h2 className="text-4xl md:text-5xl font-black">
-                <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Featured</span>{" "}
-                <span className="bg-gradient-to-r from-blue-400 to-teal-500 bg-clip-text text-transparent">
-                  Projects
-                </span>
-              </h2>
-            </div>
-          </div>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-teal-500 mx-auto rounded-full mb-4"></div>
-          <p className="text-gray-300 text-lg max-w-3xl mx-auto leading-relaxed">
-            Explore my latest projects showcasing expertise in{" "}
-            <span className="text-blue-400 font-semibold">mobile development</span>,{" "}
-            <span className="text-teal-400 font-semibold">full-stack applications</span>, and{" "}
-            <span className="text-blue-400 font-semibold">scalable platforms</span>.
+        <div className="text-center mb-20">
+          <DancingHeading text="Featured Projects" className="text-4xl md:text-5xl lg:text-6xl mb-4" />
+          <div className="w-24 h-1 bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 mx-auto rounded-full mb-6"></div>
+          <p className="text-gray-400 text-sm max-w-2xl mx-auto font-sans leading-relaxed">
+            Intellectual products bridging machine learning algorithms with reliable full-stack web architectures.
           </p>
         </div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => {
-            const Icon = project.icon;
-            return (
-              <div
-                key={project.id}
-                data-index={index}
-                className={`group relative transform transition-all duration-1000 ${
-                  visibleCards.has(index) 
-                    ? 'translate-y-0 opacity-100' 
-                    : 'translate-y-20 opacity-0'
-                }`}
-                style={{ transitionDelay: `${index * 150}ms` }}
-              >
-                {/* Card Container */}
-                <div className="relative h-full">
-                  {/* Animated Border Effect */}
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/30 to-teal-500/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 blur-sm"></div>
-                  
-                  {/* Main Card */}
-                  <div className="relative bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-600/40 overflow-hidden group-hover:border-gray-500/60 group-hover:shadow-2xl group-hover:shadow-blue-900/20 transition-all duration-500 h-full flex flex-col">
-                    
-                    {/* Project Image - Taller for better visibility */}
-                    <div className="relative h-48 overflow-hidden">
-                      <img 
-                        src={project.image} 
-                        alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 filter group-hover:brightness-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-transparent to-black/20"></div>
-                      
-                      {/* Subtle animated overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
-                      
-                      {/* Category Badge */}
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 bg-gray-900/70 backdrop-blur-sm text-gray-200 text-sm font-semibold rounded-full border border-gray-600/40">
-                          {project.category}
-                        </span>
-                      </div>
-                      
-                      {/* Project Icon */}
-                      <div className="absolute top-4 right-4">
-                        <div className="w-10 h-10 bg-gray-800/80 backdrop-blur-sm border border-gray-600/40 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-gray-700/80 transition-all duration-300">
-                          <Icon className="w-5 h-5 text-gray-300" />
-                        </div>
-                      </div>
-
-                      {/* Date Badge */}
-                      <div className="absolute bottom-4 right-4">
-                        <div className="flex items-center gap-2 px-3 py-1 bg-gray-900/70 backdrop-blur-sm rounded-full text-gray-200 text-sm border border-gray-600/40">
-                          <Calendar className="w-4 h-4" />
-                          {project.duration}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card Content - Better spacing */}
-                    <div className="p-6 flex-1 flex flex-col">
-                      {/* Header */}
-                      <div className="mb-4">
-                        <h3 className="text-2xl font-bold text-white mb-2 group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-teal-400 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
-                          {project.title}
-                        </h3>
-                        <p className={`text-base font-medium bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
-                          {project.subtitle}
-                        </p>
-                      </div>
-
-                      {/* Description */}
-                      <p className="text-gray-300 text-sm leading-relaxed mb-5 flex-1">
-                        {project.description}
-                      </p>
-
-                      {/* Technologies */}
-                      <div className="mb-5">
-                        <h4 className="text-sm font-semibold text-blue-300 uppercase tracking-wider mb-3">Tech Stack</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {project.technologies.map((tech, techIndex) => (
-                            <span 
-                              key={techIndex}
-                              className="px-3 py-1 text-sm font-medium rounded-lg bg-gray-700/60 border border-gray-600/40 text-blue-300 hover:bg-gray-600/60 transition-all duration-300"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Key Achievements */}
-                      <div className="mb-5">
-                        <h4 className="text-sm font-semibold text-teal-300 uppercase tracking-wider mb-3">Achievements</h4>
-                        <div className="grid grid-cols-3 gap-3">
-                          {project.achievements.map((achievement, achIndex) => {
-                            const AchIcon = achievement.icon;
-                            return (
-                              <div key={achIndex} className="text-center">
-                                <div className="w-8 h-8 mx-auto mb-2 bg-gray-700/60 border border-gray-600/40 rounded-lg flex items-center justify-center">
-                                  <AchIcon className="w-4 h-4 text-blue-400" />
-                                </div>
-                                <div className="font-bold text-sm text-blue-300">{achievement.value}</div>
-                                <div className="text-gray-400 text-xs">{achievement.label}</div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Features List */}
-                      <div className="mb-6">
-                        <h4 className="text-sm font-semibold text-teal-300 uppercase tracking-wider mb-3">Key Features</h4>
-                        <div className="space-y-2">
-                          {project.features.map((feature, fIndex) => (
-                            <div key={fIndex} className="flex items-start gap-3">
-                              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-400" />
-                              <span className="text-gray-300 text-sm">{feature}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-3 mt-auto">
-                        <a 
-                          href={project.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1"
-                        >
-                          <div className="bg-gradient-to-r from-blue-500 to-teal-500 text-white px-4 py-3 rounded-xl hover:from-blue-600 hover:to-teal-600 transition-all duration-300 flex items-center justify-center gap-2 font-medium hover:scale-105 shadow-lg">
-                            <Github className="w-4 h-4" />
-                            <span>GitHub</span>
-                          </div>
-                        </a>
-                        <a 
-                          href={project.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1"
-                        >
-                          <div className="bg-gradient-to-r from-blue-500 to-teal-500 text-white px-4 py-3 rounded-xl hover:from-blue-600 hover:to-teal-600 transition-all duration-300 flex items-center justify-center gap-2 font-medium hover:scale-105 shadow-lg">
-                            <Eye className="w-4 h-4" />
-                            <span>Live Preview</span>
-                          </div>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        {/* Alternating Projects Stack */}
+        <div className="space-y-12 w-full">
+          {projects.map((project, index) => (
+            <ProjectCard key={project.id} project={project} index={index} />
+          ))}
         </div>
 
-        {/* Call to Action */}
-        <div className={`text-center mt-16 transform transition-all duration-1000 delay-1000 ${
+        {/* Global CTA */}
+        <div className={`mt-24 transform transition-all duration-1000 delay-500 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}>
-          <div className="relative inline-block">
-            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/10 to-teal-500/10 blur-2xl rounded-3xl"></div>
-            <div className="relative bg-gray-800/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-700/50">
-              <h3 className="text-xl font-bold text-white mb-3">Want to see more of my work?</h3>
-              <p className="text-gray-400 mb-4 text-sm">Check out my GitHub for more projects and contributions</p>
+          <div className="border border-white/5 bg-slate-950/40 p-8 rounded-2xl max-w-3xl mx-auto backdrop-blur-xl relative overflow-hidden group hover:border-cyan-500/20 transition-all duration-500">
+            {/* Corner accents */}
+            <span className="absolute -top-[1px] -left-[1px] w-3 h-3 border-t-2 border-l-2 border-white/10 group-hover:border-cyan-400 transition-all duration-300 rounded-tl" />
+            <span className="absolute -top-[1px] -right-[1px] w-3 h-3 border-t-2 border-r-2 border-white/10 group-hover:border-cyan-400 transition-all duration-300 rounded-tr" />
+            <span className="absolute -bottom-[1px] -left-[1px] w-3 h-3 border-b-2 border-l-2 border-white/10 group-hover:border-cyan-400 transition-all duration-300 rounded-bl" />
+            <span className="absolute -bottom-[1px] -right-[1px] w-3 h-3 border-b-2 border-r-2 border-white/10 group-hover:border-cyan-400 transition-all duration-300 rounded-br" />
+
+            {/* Glowing sweep backdrop */}
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+              <div className="text-left space-y-2">
+                <span className="text-[10px] text-cyan-400 font-bold tracking-widest uppercase block font-mono-cyber">
+                  ● ACCESS_PORTAL | GITHUB_REPOS
+                </span>
+                <h3 className="text-xl md:text-2xl font-black text-white font-sans tracking-tight">
+                  Want to explore more pipelines?
+                </h3>
+                <p className="text-gray-400 text-xs font-sans leading-relaxed max-w-md">
+                  Access the complete repository index containing model training pipelines, multi-agent frameworks, and cloud-native templates.
+                </p>
+              </div>
+
               <a
-                href="https://github.com/shreyashgautam"
+                href="https://github.com/Sakshi-Pandey22"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white font-semibold px-6 py-3 rounded-xl hover:from-blue-600 hover:to-teal-600 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-blue-500/25"
+                className="flex-shrink-0 w-full md:w-auto"
               >
-                <Github className="w-4 h-4" />
-                <span>View All Projects</span>
-                <ExternalLink className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
+                <div className="relative group/btn overflow-hidden rounded-xl border border-cyan-500/30 bg-cyan-950/10 px-6 py-3 transition-all duration-300 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(34,211,238,0.25)] flex items-center justify-center gap-2.5">
+                  <Github size={16} className="text-cyan-400 group-hover/btn:scale-110 transition-transform" />
+                  <span className="text-xs font-bold text-cyan-400 tracking-wider font-mono-cyber uppercase">
+                    SYSTEM_INDEX
+                  </span>
+                  <ExternalLink size={13} className="text-cyan-400 transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+                </div>
               </a>
             </div>
           </div>
         </div>
+
       </div>
+
+      {/* Local 3D animations and scanner styling */}
+      <style>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+
+        .preserve-3d {
+          transform-style: preserve-3d;
+        }
+
+        .translate-z-10 {
+          transform: translateZ(10px);
+        }
+
+        .translate-z-20 {
+          transform: translateZ(20px);
+        }
+
+        @keyframes card-scanner {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(240px); }
+          100% { transform: translateY(0); }
+        }
+
+        .animate-card-scanner {
+          animation: card-scanner 5s linear infinite;
+        }
+      `}</style>
     </section>
   );
 };

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
   User, 
-  BookOpen, 
   MapPin, 
   Calendar,
-  GraduationCap
+  GraduationCap,
+  Terminal,
+  Cpu
 } from 'lucide-react';
-import dps from '../assets/dpspatna.png'
-
-import vit from '../assets/vitchennai.png'
+import profileMain from '../assets/profile-main.png';
+import DancingHeading from './DancingHeading';
 
 const AboutSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -20,7 +20,7 @@ const AboutSection = () => {
           setIsVisible(true);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.2 }
     );
 
     const section = document.getElementById('about');
@@ -32,196 +32,258 @@ const AboutSection = () => {
   const education = [
     {
       institution: 'Vellore Institute Of Technology',
-      degree: 'B.Tech CSE (AIML)',
+      degree: 'B.Tech Computer Science and Engineering (AIML)',
       duration: '2023 - 2027',
-      score: 'CGPA: 9.59',
-      location: 'Chennai',
-      logo: vit,
-      color: 'from-blue-500 to-teal-500'
+      score: 'CGPA: 8.94',
+      location: 'Chennai, Tamil Nadu',
+      color: 'from-blue-500 to-teal-500',
+      description: 'Focusing on Deep Learning, NLP, Cloud Architectures, and Multi-Agent Systems.'
     },
     {
-      institution: 'Delhi Public School Patna',
-      degree: 'Class 12th',
-      duration: '2021 - 2023',
-      score: 'Percentage: 96%',
-      location: 'Patna',
-      logo:dps,
-      color: 'from-teal-500 to-green-500'
+      institution: "St Joseph's Convent School",
+      degree: 'CBSE Senior Secondary School Certificate',
+      duration: '2010 - 2022',
+      score: '10th: 93% | 12th: 93%',
+      location: 'Ranchi, Jharkhand',
+      color: 'from-teal-500 to-green-500',
+      description: 'Completed secondary and higher secondary education with a strong foundation in Physics, Chemistry, and Mathematics.'
     }
   ];
 
   return (
     <section 
       id="about" 
-      className="relative min-h-screen py-20 px-4 bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden"
+      className="relative min-h-screen py-24 px-4 bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden"
     >
-      {/* Enhanced Background Effects */}
-      <div className="absolute inset-0 z-0">
-        {/* Animated particles */}
-        <div className="absolute top-1/4 left-1/6 w-40 h-40 bg-gradient-to-r from-blue-500/10 to-teal-500/10 rounded-full animate-float"></div>
-        <div className="absolute bottom-1/3 right-1/5 w-32 h-32 bg-gradient-to-r from-teal-500/10 to-green-500/10 rounded-full animate-float-reverse"></div>
-        <div className="absolute top-1/2 right-1/4 w-24 h-24 bg-gradient-to-r from-green-400/10 to-blue-400/10 rounded-full animate-pulse"></div>
+      {/* Background Matrix-like glow effects */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/10 w-72 h-72 bg-gradient-to-tr from-cyan-500/5 to-teal-500/5 rounded-full blur-[100px] animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/10 w-96 h-96 bg-gradient-to-br from-blue-500/5 to-green-500/5 rounded-full blur-[120px] animate-pulse delay-700"></div>
         
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-5" 
-             style={{
-               backgroundImage: `radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-                                radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
-                                radial-gradient(circle at 40% 40%, rgba(20, 184, 166, 0.2) 0%, transparent 50%)`,
-               backgroundSize: '100px 100px'
-             }}>
-        </div>
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto">
-        {/* Section Header */}
-        <div className={`text-center mb-16 transform transition-all duration-1000 ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-        }`}>
-          <div className="relative inline-block">
-            <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/20 via-teal-500/20 to-green-500/20 blur-lg rounded-2xl"></div>
-            <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-blue-400 via-teal-500 to-green-500 bg-clip-text text-transparent mb-4">
-              About Me
-            </h2>
-          </div>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 via-teal-500 to-green-400 mx-auto rounded-full"></div>
+      <div className="relative z-10 max-w-6xl mx-auto font-mono-cyber">
+        
+        {/* Simplified Section Header */}
+        <div className="text-center mb-16">
+          <DancingHeading text="About Me" className="text-4xl md:text-5xl lg:text-6xl mb-4" />
+          <div className="w-24 h-1 bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 mx-auto rounded-full"></div>
         </div>
 
-        {/* Main Content - Two Column Layout */}
-        <div className={`grid lg:grid-cols-2 gap-12 transform transition-all duration-1000 delay-500 ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-        }`}>
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           
-          {/* About Section */}
-          <div className="h-full">
-            <div className="relative h-full">
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/10 via-teal-500/10 to-green-500/10 rounded-3xl blur-xl"></div>
-              <div className="relative bg-gray-800/60 backdrop-blur-xl p-8 rounded-3xl border border-gray-700/50 h-full flex flex-col">
-                <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-teal-500 rounded-lg mr-3 flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
+          {/* Left Column: Image with overlays and Humanized Bio */}
+          <div className={`space-y-10 transition-all duration-1000 delay-300 ${
+            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+          }`}>
+            
+            {/* Tech-Style Profile Image Card */}
+            <div className="relative group rounded-2xl overflow-hidden border border-white/10 bg-black/40 p-2 shadow-2xl">
+              {/* Corner box accents */}
+              <span className="absolute -top-[1px] -left-[1px] w-4 h-4 border-t-2 border-l-2 border-cyan-400 group-hover:scale-110 transition-transform duration-300 z-30" />
+              <span className="absolute -top-[1px] -right-[1px] w-4 h-4 border-t-2 border-r-2 border-cyan-400 group-hover:scale-110 transition-transform duration-300 z-30" />
+              <span className="absolute -bottom-[1px] -left-[1px] w-4 h-4 border-b-2 border-l-2 border-cyan-400 group-hover:scale-110 transition-transform duration-300 z-30" />
+              <span className="absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b-2 border-r-2 border-cyan-400 group-hover:scale-110 transition-transform duration-300 z-30" />
+
+              {/* Image Frame */}
+              <div className="relative rounded-xl overflow-hidden border border-white/5 h-[320px] md:h-[380px] lg:h-[420px]">
+                <img 
+                  src={profileMain} 
+                  alt="Sakshi Pandey profile" 
+                  className="w-full h-full object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                />
+                
+                {/* Visual scanning overlay line */}
+                <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-scanner opacity-40 z-20 pointer-events-none" />
+
+                {/* Cyber HUD Text Overlays - Unique details */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 font-mono-cyber text-[10px] p-4 flex flex-col justify-between z-20 select-none tracking-wider">
+                  
+                  {/* Top Overlay Row */}
+                  <div className="flex justify-between items-center text-cyan-400/80">
+                    <span className="bg-black/40 px-2 py-1 rounded border border-white/5">
+                      [SYS_HOST : SAKSHI_PANDEY]
+                    </span>
+                    <span className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5 font-bold">
+                      <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" />
+                      <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full" />
+                      ONLINE : DEPLOYMENT_SECURE
+                    </span>
                   </div>
-                  About Me
-                </h3>
-                <div className="flex-1">
-                  <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                    Hi, I'm <span className="text-blue-400 font-bold">Shreyash Gautam</span>, a passionate{" "}
-                    <span className="bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent font-bold">Full Stack Developer</span>{" "}
-                    with a strong background in web and mobile app development. I'm currently pursuing a Bachelor's degree in{" "}
-                    <span className="text-teal-400 font-bold">Computer Science and Engineering</span> at VIT Chennai.
-                  </p>
-                  <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                    Over the years, I've honed my skills in{" "}
-                    <span className="text-green-400 font-bold">JavaScript</span>,{" "}
-                    <span className="text-blue-400 font-bold">React.js</span>,{" "}
-                    <span className="text-teal-400 font-bold">Node.js</span>, and many other frameworks to create{" "}
-                    <span className="bg-gradient-to-r from-teal-400 to-green-400 bg-clip-text text-transparent font-bold">
-                      dynamic, responsive, and interactive applications
-                    </span>.
-                  </p>
-                  <p className="text-gray-300 text-lg leading-relaxed">
-                    Apart from my technical expertise, I enjoy exploring new technologies, taking part in{" "}
-                    <span className="text-blue-400 font-bold">hackathons</span>, and learning from the tech community. I aim to{" "}
-                    <span className="bg-gradient-to-r from-blue-400 via-teal-400 to-green-400 bg-clip-text text-transparent font-bold">
-                      solve complex problems with creative solutions
-                    </span>{" "}
-                    and build applications that make an impact.
-                  </p>
+
+                  {/* Bottom Overlay Row */}
+                  <div className="flex justify-between items-center text-white/70">
+                    <span className="bg-black/40 px-2 py-1 rounded border border-white/5 font-semibold">
+                      CORE_STACK : REACT • NODE • PYTHON
+                    </span>
+                    <span className="bg-black/40 px-2 py-1 rounded border border-white/5">
+                      AIML_ENGINE : MODEL_STABLE
+                    </span>
+                  </div>
+
                 </div>
               </div>
             </div>
+
+            {/* Philosophy quote & descriptive details */}
+            <div className="space-y-6">
+              
+              {/* Quote Block - Unique wording */}
+              <div className="border-l-2 border-cyan-500 pl-4 py-1">
+                <span className="text-[10px] text-cyan-400/80 font-bold uppercase tracking-wider block mb-1">
+                  ● ARCHITECTURE MANIFESTO
+                </span>
+                <p className="text-white italic text-base leading-relaxed font-sans">
+                  "I view software as a double-sided engine—where machine learning forms the cognitive core, and modern web architectures provide the reliable machinery to deliver it."
+                </p>
+              </div>
+
+              {/* Bio details - Humanized & styled */}
+              <div className="space-y-4 text-gray-300 text-sm leading-relaxed font-sans">
+                <p>
+                  Hi, I'm <span className="text-cyan-400 font-bold">Sakshi Pandey</span>, a passionate{' '}
+                  <span className="text-teal-300 font-semibold">AI/ML Engineer and Full Stack Developer</span> focused on building intelligent applications that blend modern software engineering with practical machine learning.
+                </p>
+                <p>
+                  My work spans <span className="text-white font-medium border-b border-white/10 hover:border-cyan-400 transition-colors">Artificial Intelligence</span>,{' '}
+                  <span className="text-white font-medium border-b border-white/10 hover:border-cyan-400 transition-colors">Machine Learning</span>,{' '}
+                  <span className="text-white font-medium border-b border-white/10 hover:border-cyan-400 transition-colors">Deep Learning</span>, and full-stack product development using React, Node.js, Flask, and cloud-native tooling to create scalable, data-driven, and user-centered experiences.
+                </p>
+                <p>
+                  I'm especially interested in <span className="text-cyan-300">RAG systems, NLP, explainable AI, cloud computing, and analytics</span>. I enjoy turning complex problems into practical solutions and aim to build intelligent products that create measurable impact across research, industry, and real-world workflows.
+                </p>
+              </div>
+
+            </div>
+
           </div>
 
-          {/* Education Section */}
-          <div className="h-full">
-            <div className="relative h-full">
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/10 via-teal-500/10 to-green-500/10 rounded-3xl blur-xl"></div>
-              <div className="relative bg-gray-800/60 backdrop-blur-xl p-8 rounded-3xl border border-gray-700/50 h-full flex flex-col">
-                <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-green-500 rounded-lg mr-3 flex items-center justify-center">
-                    <GraduationCap className="w-4 h-4 text-white" />
+          {/* Right Column: Academic Credentials */}
+          <div className={`space-y-8 transition-all duration-1000 delay-500 ${
+            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+          }`}>
+            
+            <div className="flex items-center gap-2 mb-4">
+              <Terminal size={16} className="text-cyan-400" />
+              <span className="text-xs font-bold text-cyan-400 tracking-[0.2em] uppercase">
+                ● EDUCATION TIMELINE
+              </span>
+            </div>
+
+            {/* Timeline Cards container with timeline trace line */}
+            <div className="relative pl-6 border-l border-white/10 space-y-8">
+              {education.map((edu, index) => (
+                <div 
+                  key={index}
+                  className="group relative border border-white/5 bg-slate-950/40 p-6 rounded-2xl transition-all duration-300 hover:border-teal-500/30 hover:bg-slate-950/60"
+                >
+                  {/* Timeline bullet dot */}
+                  <span className="absolute -left-[31px] top-6 w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee] border border-black group-hover:scale-125 transition-transform" />
+
+                  {/* Cyber accent highlights */}
+                  <span className="absolute -top-[1px] -left-[1px] w-2 h-2 border-t border-l border-white/10 group-hover:border-teal-400 transition-colors" />
+                  <span className="absolute -bottom-[1px] -right-[1px] w-2 h-2 border-b border-r border-white/10 group-hover:border-teal-400 transition-colors" />
+
+                  {/* Card Header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-2">
+                      <Calendar size={12} className="text-cyan-400" />
+                      <span className="text-xs text-cyan-400 font-bold tracking-wider">
+                        {edu.duration}
+                      </span>
+                    </div>
+                    
+                    {/* Education Cap Badge */}
+                    <div className="w-8 h-8 rounded-full bg-cyan-950/40 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+                      <GraduationCap size={16} />
+                    </div>
                   </div>
-                  Education
-                </h3>
-                <div className="flex-1 space-y-6">
-                  {education.map((edu, index) => {
-                    return (
-                      <div 
-                        key={index}
-                        className="group relative"
-                        style={{ animationDelay: `${index * 200}ms` }}
-                      >
-                        <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/10 to-green-500/10 rounded-2xl blur opacity-50 group-hover:opacity-100 transition-all duration-500"></div>
-                        <div className="relative bg-gray-700/40 backdrop-blur p-6 rounded-2xl border border-gray-600/50 group-hover:border-teal-500/50 transition-all duration-300">
-                          <div className="flex items-start space-x-4">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden bg-white/10 backdrop-blur flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-gray-600/30">
-                              <img 
-                                src={edu.logo} 
-                                alt={`${edu.institution} logo`}
-                                className="w-10 h-10 object-contain rounded-lg"
-                                onError={(e) => {
-                                  // Fallback to gradient background with graduation cap icon if logo fails to load
-                                  e.target.style.display = 'none';
-                                  e.target.nextSibling.style.display = 'flex';
-                                }}
-                              />
-                              <div 
-                                className={`w-10 h-10 bg-gradient-to-r ${edu.color} rounded-lg items-center justify-center hidden`}
-                              >
-                                <GraduationCap className="w-5 h-5 text-white" />
-                              </div>
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex flex-col mb-3">
-                                <h4 className="text-lg font-bold text-white mb-2">
-                                  {edu.institution}
-                                </h4>
-                                <div className="flex flex-col space-y-1">
-                                  <span className="text-teal-400 font-medium flex items-center text-sm">
-                                    <Calendar className="w-3 h-3 mr-1" />
-                                    {edu.duration}
-                                  </span>
-                                  <span className="text-green-400 font-medium flex items-center text-sm">
-                                    <MapPin className="w-3 h-3 mr-1" />
-                                    {edu.location}
-                                  </span>
-                                </div>
-                              </div>
-                              <p className="text-gray-300 mb-2">{edu.degree}</p>
-                              <div className="inline-block bg-gradient-to-r from-blue-500/20 to-teal-500/20 px-3 py-1 rounded-lg border border-blue-500/30">
-                                <span className="text-blue-300 font-bold text-sm">{edu.score}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+
+                  {/* Card Title & Content */}
+                  <div className="space-y-3 font-sans">
+                    <h3 className="text-xl font-bold text-white tracking-tight group-hover:text-cyan-300 transition-colors">
+                      {edu.institution}
+                    </h3>
+                    
+                    <p className="text-gray-400 text-sm font-medium">
+                      {edu.degree}
+                    </p>
+
+                    {/* Score badge */}
+                    <div className="inline-block bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-md text-cyan-400 text-xs font-bold font-mono-cyber">
+                      {edu.score}
+                    </div>
+
+                    {/* Location detail */}
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500 font-mono-cyber pt-1">
+                      <MapPin size={11} className="text-teal-500" />
+                      <span>{edu.location}</span>
+                    </div>
+
+                    {/* Divider and desc */}
+                    <div className="border-t border-white/5 pt-3 mt-3">
+                      <p className="text-xs text-gray-400 font-mono-cyber leading-relaxed">
+                        {edu.description}
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Custom Console Monitor Widget */}
+            <div className="border border-white/5 bg-slate-950/20 p-5 rounded-2xl select-none font-mono-cyber">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 bg-teal-400 rounded-full animate-pulse" />
+                <span className="text-[10px] text-teal-400 font-bold tracking-widest uppercase">SYS_CONSOLE | STACK_METRICS</span>
+              </div>
+              <div className="space-y-1.5 text-[11px] text-gray-400 font-mono-cyber">
+                <div className="flex justify-between border-b border-white/5 pb-1">
+                  <span className="text-gray-500">&gt; pyTorch_engine</span>
+                  <span className="text-cyan-400 font-bold">READY | MODEL_ACC: 94.6%</span>
+                </div>
+                <div className="flex justify-between border-b border-white/5 pb-1">
+                  <span className="text-gray-500">&gt; node_gateway</span>
+                  <span className="text-teal-400 font-bold">STABLE | LATENCY: 12ms</span>
+                </div>
+                <div className="flex justify-between border-b border-white/5 pb-1">
+                  <span className="text-gray-500">&gt; aws_deployment</span>
+                  <span className="text-green-400 font-bold">ACTIVE | STACK_DEPLOYED</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">&gt; responsiveness</span>
+                  <span className="text-white font-bold">OPTIMIZED | 100% SECURE</span>
                 </div>
               </div>
             </div>
+
           </div>
+
         </div>
+
       </div>
 
-      {/* Custom Animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-30px) rotate(180deg); }
+      {/* Local custom animations */}
+      <style>{`
+        @keyframes scanner {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(380px); }
+          100% { transform: translateY(0); }
         }
-        
-        @keyframes float-reverse {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(20px) rotate(-180deg); }
+
+        .animate-scanner {
+          animation: scanner 6s linear infinite;
         }
-        
-        .animate-float {
-          animation: float 8s ease-in-out infinite;
+
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
-        
-        .animate-float-reverse {
-          animation: float-reverse 10s ease-in-out infinite;
+
+        .animate-spin-slow {
+          animation: spin-slow 15s linear infinite;
         }
       `}</style>
     </section>
