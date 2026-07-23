@@ -93,8 +93,8 @@ const Navbar = () => {
             >
               {/* SP Box */}
               <div className="relative border border-white/60 px-3 py-1.5 font-mono-cyber font-extrabold text-white text-xl tracking-wider bg-transparent">
-                {/* Teal indicator dot at top-left corner */}
-                <div className="absolute -top-[5px] -left-[5px] w-2.5 h-2.5 bg-teal-400 rounded-full border border-black shadow-[0_0_8px_#2dd4bf] animate-pulse" />
+                {/* Cyan indicator dot at top-left corner */}
+                <div className="absolute -top-[5px] -left-[5px] w-2.5 h-2.5 bg-cyan-400 rounded-full border border-black shadow-[0_0_8px_#22d3ee] animate-pulse" />
                 SP
               </div>
               
